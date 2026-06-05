@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cold Creek Ranch – Animals For Sale</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #f5f0e8;
+      color: #2c1a0e;
+      min-height: 100vh;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(rgba(0,0,0,0.48), rgba(0,0,0,0.48)),
+                  url('https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1400&q=80') center/cover no-repeat;
+      color: #fff;
+      text-align: center;
+      padding: 80px 20px 60px;
+    }
+    .hero .ranch-name {
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 8px rgba(0,0,0,.6);
+    }
+    .hero .tagline {
+      margin-top: 14px;
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      font-style: italic;
+      opacity: .9;
+    }
+    .hero .scroll-cta {
+      display: inline-block;
+      margin-top: 30px;
+      background: #b5460f;
+      color: #fff;
+      text-decoration: none;
+      padding: 14px 36px;
+      border-radius: 4px;
+      font-size: 1.05rem;
+      letter-spacing: 1px;
+      transition: background .2s;
+    }
+    .hero .scroll-cta:hover { background: #8f3309; }
+
+    /* ── Animals Grid ── */
+    .animals-section {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 60px 20px 40px;
+      text-align: center;
+    }
+    .animals-section h2 {
+      font-size: 1.9rem;
+      margin-bottom: 8px;
+      color: #6b2d0e;
+    }
+    .animals-section .subtitle {
+      color: #7a5c3e;
+      font-style: italic;
+      margin-bottom: 40px;
+    }
+    .animals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+    }
+    .animal-card {
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,.1);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .animal-card:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
+    .animal-card .icon { font-size: 3rem; padding: 28px 0 12px; }
+    .animal-card h3 { font-size: 1.1rem; padding-bottom: 6px; color: #4a1f06; }
+    .animal-card p { font-size: .88rem; color: #7a5c3e; padding: 0 16px 24px; line-height: 1.5; }
+
+    /* ── Lead Form ── */
+    .form-section {
+      background: #3b1f0a;
+      color: #f5f0e8;
+      padding: 60px 20px;
+    }
+    .form-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .form-wrap h2 {
+      font-size: 1.9rem;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .form-wrap .form-sub {
+      text-align: center;
+      font-style: italic;
+      opacity: .75;
+      margin-bottom: 36px;
+      font-size: .95rem;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: .9rem; margin-bottom: 6px; opacity: .85; }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #7a5c3e;
+      border-radius: 4px;
+      background: #f5f0e8;
+      color: #2c1a0e;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    textarea { resize: vertical; min-height: 100px; }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #e87733;
+      box-shadow: 0 0 0 3px rgba(232,119,51,.25);
+    }
+
+    /* multi-select checkboxes */
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f5f0e8;
+      color: #2c1a0e;
+      padding: 10px 14px;
+      border-radius: 4px;
+      border: 1px solid #7a5c3e;
+      cursor: pointer;
+      font-size: .92rem;
+      margin: 0;
+      transition: background .15s;
+    }
+    .checkbox-group label:has(input:checked) { background: #e87733; color: #fff; border-color: #e87733; }
+    .checkbox-group input[type="checkbox"] { width: auto; accent-color: #b5460f; }
+
+    /* funds verification */
+    .funds-note {
+      background: rgba(255,255,255,.07);
+      border-left: 3px solid #e87733;
+      padding: 12px 16px;
+      border-radius: 0 4px 4px 0;
+      font-size: .88rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      opacity: .9;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: #b5460f;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1.1rem;
+      font-family: inherit;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .submit-btn:hover { background: #8f3309; }
+    .submit-btn:disabled { background: #6b4432; cursor: not-allowed; }
+
+    /* ── Success / Error ── */
+    #form-status {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1rem;
+      min-height: 24px;
+    }
+    #form-status.success { color: #6ee87d; }
+    #form-status.error   { color: #ff7070; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 28px 20px;
+      font-size: .85rem;
+      color: #7a5c3e;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="ranch-name">Cold Creek Ranch</div>
+  <div class="tagline">Premium Ranch Animals – Texas Raised &amp; Ranch Ready</div>
+  <a href="#inquiry" class="scroll-cta">Inquire About an Animal</a>
+</section>
+
+<!-- ── Animals ── -->
+<section class="animals-section">
+  <h2>Animals Available</h2>
+  <p class="subtitle">All animals are ranch-raised and available for private sale.</p>
+  <div class="animals-grid">
+    <div class="animal-card">
+      <div class="icon">🦓</div>
+      <h3>Zebra Crossbreeds</h3>
+      <p>Rare zebra hybrid animals — a truly unique addition to any exotic collection or ranch.</p>
+    </div>
+    <div class="animal-card">
+      <div class="icon">🫏</div>
+      <h3>Donkeys</h3>
+      <p>Hardy, gentle, and great for companionship or working the land. Various sizes available.</p>
+    </div>
+    <div class="animal-card">
+      <div class="icon">🐄</div>
+      <h3>Cattle</h3>
+      <p>Quality ranch cattle raised on open pasture. Ideal for ranchers, breeders, and investors.</p>
+    </div>
+    <div class="animal-card">
+      <div class="icon">🐎</div>
+      <h3>Horses</h3>
+      <p>Well-mannered horses suitable for trail riding, ranch work, or breeding programs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Lead Form ── -->
+<section class="form-section" id="inquiry">
+  <div class="form-wrap">
+    <h2>Request More Information</h2>
+    <p class="form-sub">Serious buyers only. We'll contact you to discuss availability and pricing.</p>
+
+    <form id="lead-form" novalidate>
+
+      <div class="form-group">
+        <label for="full-name">Full Name *</label>
+        <input type="text" id="full-name" name="name" placeholder="Jane Smith" required />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number *</label>
+        <input type="tel" id="phone" name="phone" placeholder="(555) 000-0000" required />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address *</label>
+        <input type="email" id="email" name="email" placeholder="jane@example.com" required />
+      </div>
+
+      <div class="form-group">
+        <label>Which animal(s) are you interested in? *</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="animals" value="Zebra Crossbreeds" /> Zebra Crossbreeds</label>
+          <label><input type="checkbox" name="animals" value="Donkeys" /> Donkeys</label>
+          <label><input type="checkbox" name="animals" value="Cattle" /> Cattle</label>
+          <label><input type="checkbox" name="animals" value="Horses" /> Horses</label>
+          <label><input type="checkbox" name="animals" value="Other / Not Sure" /> Other / Not Sure</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="budget">Approximate Budget *</label>
+        <select id="budget" name="budget" required>
+          <option value="" disabled selected>Select a range…</option>
+          <option>Under $5,000</option>
+          <option>$5,000 – $15,000</option>
+          <option>$15,000 – $50,000</option>
+          <option>$50,000 – $100,000</option>
+          <option>$100,000+</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="proof">Proof of Funds / Buyer Verification *</label>
+        <select id="proof" name="proof_of_funds" required>
+          <option value="" disabled selected>Select one…</option>
+          <option>I can provide a bank statement or LOC letter</option>
+          <option>I can provide a pre-approval from my lender</option>
+          <option>Cash buyer – can show proof on request</option>
+          <option>I represent a business / LLC (can provide docs)</option>
+          <option>I do not have proof of funds at this time</option>
+        </select>
+        <div class="funds-note" style="margin-top:10px;">
+          We require basic buyer verification before scheduling a ranch visit. Proof of funds protects both parties and ensures serious inquiries only.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="message">Questions or Additional Notes</label>
+        <textarea id="message" name="message" placeholder="Tell us more about what you're looking for, your ranch setup, timeline, etc."></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">Send My Inquiry →</button>
+      <div id="form-status"></div>
+
+    </form>
+  </div>
+</section>
+
+<footer>
+  &copy; 2026 Cold Creek Ranch &bull; All inquiries are confidential
+</footer>
+
+<script>
+  // ── Replace with your Google Apps Script Web App URL ──
+  const SHEET_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+
+  const form    = document.getElementById('lead-form');
+  const btn     = document.getElementById('submit-btn');
+  const status  = document.getElementById('form-status');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Basic validation
+    const name   = form.name.value.trim();
+    const phone  = form.phone.value.trim();
+    const email  = form.email.value.trim();
+    const budget = form.budget.value;
+    const proof  = form.proof_of_funds.value;
+    const animals = [...form.querySelectorAll('input[name="animals"]:checked')]
+                      .map(cb => cb.value).join(', ');
+
+    if (!name || !phone || !email || !budget || !proof) {
+      status.textContent = 'Please fill in all required fields.';
+      status.className = 'error';
+      return;
+    }
+    if (!animals) {
+      status.textContent = 'Please select at least one animal you\'re interested in.';
+      status.className = 'error';
+      return;
+    }
+    if (!email.includes('@')) {
+      status.textContent = 'Please enter a valid email address.';
+      status.className = 'error';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    status.textContent = '';
+    status.className = '';
+
+    const payload = {
+      name,
+      phone,
+      email,
+      animals,
+      budget,
+      proof_of_funds: proof,
+      message: form.message.value.trim(),
+      submitted_at: new Date().toLocaleString(),
+    };
+
+    try {
+      await fetch(SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',   // Apps Script requires no-cors
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      // no-cors means we can't read the response — assume success if no network error
+      form.reset();
+      status.textContent = '✓ Inquiry received! We\'ll be in touch within 1 business day.';
+      status.className = 'success';
+    } catch (err) {
+      status.textContent = 'Something went wrong. Please try again or call us directly.';
+      status.className = 'error';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Send My Inquiry →';
+  });
+</script>
+
+</body>
+</html>
