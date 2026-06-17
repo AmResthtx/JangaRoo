@@ -33,23 +33,65 @@ Perfect for:
 ## 📦 What You Get
 
 1. **n8n Workflow File** - Ready to import into n8n
-2. **Setup Guide** - Step-by-step instructions for all API integrations
-3. **Automated Pipeline** that handles:
+2. **Docker Setup** - Complete docker-compose.yml for self-hosting
+3. **Setup Guides**:
+   - Self-Hosted Setup (Docker) - Full control, no costs
+   - Cloud Setup (n8n.io) - Quick and easy
+   - Workflow Configuration - Advanced customization
+4. **Automated Pipeline** that handles:
    - Web searching
    - Content extraction
    - AI-powered writing
    - Multi-platform publishing
    - Notifications
 
+## 💻 System Requirements
+
+### Self-Hosted (Docker)
+- Docker & Docker Compose installed
+- 1GB RAM minimum
+- 500MB disk space
+- Internet connection
+- Local machine, VPS, or cloud server
+
+### Cloud (n8n.io)
+- Web browser
+- Internet connection
+- No installation needed
+
 ## 🔧 Quick Start
 
-1. Create a free n8n account at [n8n.io](https://n8n.io)
+### Option 1: Self-Hosted (Recommended) 🏠
+No recurring costs, full control, data privacy
+
+```bash
+# 1. Clone the repo and navigate to directory
+cd JangaRoo
+
+# 2. Start n8n with Docker (requires Docker to be installed)
+./start-n8n.sh
+# or: docker-compose up -d
+
+# 3. Access n8n
+# Open http://localhost:5678 in your browser
+
+# 4. Create account and import workflow
+# Import: n8n-houston-foundation-issues-workflow.json
+
+# 5. Add API credentials (see below)
+# 6. Test and activate
+```
+
+See [SELF_HOSTED_N8N_SETUP.md](./SELF_HOSTED_N8N_SETUP.md) for detailed instructions.
+
+### Option 2: Cloud-Hosted (n8n.io)
+Quick setup, no infrastructure needed
+
+1. Create a free account at [n8n.io](https://n8n.io)
 2. Import the workflow: `n8n-houston-foundation-issues-workflow.json`
 3. Follow the [N8N_SETUP_GUIDE.md](./N8N_SETUP_GUIDE.md) to configure API credentials
 4. Test and activate the workflow
 5. Monitor posts on your social media accounts
-
-See [N8N_SETUP_GUIDE.md](./N8N_SETUP_GUIDE.md) for detailed configuration instructions.
 
 ## 📱 Supported Platforms
 
