@@ -1,0 +1,235 @@
+{
+  "name": "Booking Approval",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "booking-event",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "booking-event"
+    },
+    {
+      "parameters": {
+        "dataPropertyName": "body",
+        "rules": {
+          "rules": [
+            {
+              "value": "new_booking",
+              "outputKey": "new_booking"
+            },
+            {
+              "value": "approved",
+              "outputKey": "approved"
+            },
+            {
+              "value": "rejected",
+              "outputKey": "rejected"
+            }
+          ]
+        },
+        "fallbackOutput": "none"
+      },
+      "id": "switch-action",
+      "name": "Switch on Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@rhythmdance.com",
+        "toEmail": "={{ $json.body.studioManagerEmail }}",
+        "subject": "=New Booking Request - {{ $json.body.studentName }}",
+        "emailType": "html",
+        "message": "=<html><body style=\"font-family: system-ui, sans-serif; color: #111827; max-width: 600px; margin: 0 auto; padding: 20px;\">\n<h2 style=\"color: #7C3AED;\">New Booking Request</h2>\n<p>A new lesson booking has been submitted and requires your approval.</p>\n<table style=\"width:100%; border-collapse: collapse; margin: 20px 0;\">\n  <tr style=\"background:#f3f4f6;\"><td style=\"padding:8px 12px; font-weight:600;\">Student</td><td style=\"padding:8px 12px;\">{{ $json.body.studentName }}</td></tr>\n  <tr><td style=\"padding:8px 12px; font-weight:600;\">Email</td><td style=\"padding:8px 12px;\">{{ $json.body.studentEmail }}</td></tr>\n  <tr style=\"background:#f3f4f6;\"><td style=\"padding:8px 12px; font-weight:600;\">Phone</td><td style=\"padding:8px 12px;\">{{ $json.body.studentPhone || 'Not provided' }}</td></tr>\n  <tr><td style=\"padding:8px 12px; font-weight:600;\">Teacher</td><td style=\"padding:8px 12px;\">{{ $json.body.teacherName }}</td></tr>\n  <tr style=\"background:#f3f4f6;\"><td style=\"padding:8px 12px; font-weight:600;\">Date</td><td style=\"padding:8px 12px;\">{{ $json.body.bookingDate }}</td></tr>\n  <tr><td style=\"padding:8px 12px; font-weight:600;\">Time</td><td style=\"padding:8px 12px;\">{{ $json.body.startTime }} – {{ $json.body.endTime }}</td></tr>\n  <tr style=\"background:#f3f4f6;\"><td style=\"padding:8px 12px; font-weight:600;\">Lesson Type</td><td style=\"padding:8px 12px;\">{{ $json.body.lessonType }}</td></tr>\n  <tr><td style=\"padding:8px 12px; font-weight:600;\">Notify Via</td><td style=\"padding:8px 12px;\">{{ $json.body.notifyVia.join(', ') }}</td></tr>\n</table>\n<div style=\"margin: 24px 0;\">\n  <a href=\"{{ $json.body.approveUrl }}\" style=\"background:#16a34a; color:#fff; padding:12px 28px; border-radius:6px; text-decoration:none; font-weight:600; margin-right:12px;\">Approve Booking</a>\n  <a href=\"{{ $json.body.rejectUrl }}\" style=\"background:#dc2626; color:#fff; padding:12px 28px; border-radius:6px; text-decoration:none; font-weight:600;\">Reject Booking</a>\n</div>\n<p style=\"color:#6b7280; font-size:13px;\">Booking ID: {{ $json.body.bookingId }}</p>\n</body></html>"
+      },
+      "id": "email-manager",
+      "name": "Email Manager",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [680, 160],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credential",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@rhythmdance.com",
+        "toEmail": "={{ $json.body.teacherEmail }}",
+        "subject": "=Booking Confirmed — {{ $json.body.studentName }} on {{ $json.body.bookingDate }}",
+        "emailType": "html",
+        "message": "=<html><body style=\"font-family: system-ui, sans-serif; color: #111827; max-width: 600px; margin: 0 auto; padding: 20px;\">\n<h2 style=\"color: #7C3AED;\">Booking Confirmed</h2>\n<p>A lesson has been approved for you. Here are the details:</p>\n<table style=\"width:100%; border-collapse: collapse; margin: 20px 0;\">\n  <tr style=\"background:#f3f4f6;\"><td style=\"padding:8px 12px; font-weight:600;\">Student</td><td style=\"padding:8px 12px;\">{{ $json.body.studentName }}</td></tr>\n  <tr><td style=\"padding:8px 12px; font-weight:600;\">Student Email</td><td style=\"padding:8px 12px;\">{{ $json.body.studentEmail }}</td></tr>\n  <tr style=\"background:#f3f4f6;\"><td style=\"padding:8px 12px; font-weight:600;\">Student Phone</td><td style=\"padding:8px 12px;\">{{ $json.body.studentPhone || 'Not provided' }}</td></tr>\n  <tr><td style=\"padding:8px 12px; font-weight:600;\">Date</td><td style=\"padding:8px 12px;\">{{ $json.body.bookingDate }}</td></tr>\n  <tr style=\"background:#f3f4f6;\"><td style=\"padding:8px 12px; font-weight:600;\">Time</td><td style=\"padding:8px 12px;\">{{ $json.body.startTime }} – {{ $json.body.endTime }}</td></tr>\n  <tr><td style=\"padding:8px 12px; font-weight:600;\">Lesson Type</td><td style=\"padding:8px 12px;\">{{ $json.body.lessonType }}</td></tr>\n</table>\n<p style=\"color:#6b7280; font-size:13px;\">Booking ID: {{ $json.body.bookingId }}</p>\n</body></html>"
+      },
+      "id": "email-teacher-approved",
+      "name": "Email Teacher (Approved)",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credential",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@rhythmdance.com",
+        "toEmail": "={{ $json.body.studentEmail }}",
+        "subject": "=Your Booking is Confirmed — {{ $json.body.studioName }}",
+        "emailType": "html",
+        "message": "=<html><body style=\"font-family: system-ui, sans-serif; color: #111827; max-width: 600px; margin: 0 auto; padding: 20px;\">\n<h2 style=\"color: #7C3AED;\">Your Booking is Confirmed!</h2>\n<p>Great news, {{ $json.body.studentName }}! Your lesson at <strong>{{ $json.body.studioName }}</strong> has been approved.</p>\n<table style=\"width:100%; border-collapse: collapse; margin: 20px 0;\">\n  <tr style=\"background:#f3f4f6;\"><td style=\"padding:8px 12px; font-weight:600;\">Teacher</td><td style=\"padding:8px 12px;\">{{ $json.body.teacherName }}</td></tr>\n  <tr><td style=\"padding:8px 12px; font-weight:600;\">Date</td><td style=\"padding:8px 12px;\">{{ $json.body.bookingDate }}</td></tr>\n  <tr style=\"background:#f3f4f6;\"><td style=\"padding:8px 12px; font-weight:600;\">Time</td><td style=\"padding:8px 12px;\">{{ $json.body.startTime }} – {{ $json.body.endTime }}</td></tr>\n  <tr><td style=\"padding:8px 12px; font-weight:600;\">Lesson Type</td><td style=\"padding:8px 12px;\">{{ $json.body.lessonType }}</td></tr>\n</table>\n<p>We look forward to seeing you!</p>\n<p style=\"color:#6b7280; font-size:13px;\">Booking ID: {{ $json.body.bookingId }}</p>\n</body></html>"
+      },
+      "id": "email-student-approved",
+      "name": "Email Student (Approved)",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [680, 440],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credential",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@rhythmdance.com",
+        "toEmail": "={{ $json.body.studentEmail }}",
+        "subject": "=Booking Update — {{ $json.body.studioName }}",
+        "emailType": "html",
+        "message": "=<html><body style=\"font-family: system-ui, sans-serif; color: #111827; max-width: 600px; margin: 0 auto; padding: 20px;\">\n<h2 style=\"color: #DC2626;\">Booking Not Available</h2>\n<p>Hi {{ $json.body.studentName }},</p>\n<p>Unfortunately, we are unable to confirm your booking request at <strong>{{ $json.body.studioName }}</strong> for the following slot:</p>\n<table style=\"width:100%; border-collapse: collapse; margin: 20px 0;\">\n  <tr style=\"background:#f3f4f6;\"><td style=\"padding:8px 12px; font-weight:600;\">Teacher</td><td style=\"padding:8px 12px;\">{{ $json.body.teacherName }}</td></tr>\n  <tr><td style=\"padding:8px 12px; font-weight:600;\">Date</td><td style=\"padding:8px 12px;\">{{ $json.body.bookingDate }}</td></tr>\n  <tr style=\"background:#f3f4f6;\"><td style=\"padding:8px 12px; font-weight:600;\">Time</td><td style=\"padding:8px 12px;\">{{ $json.body.startTime }} – {{ $json.body.endTime }}</td></tr>\n</table>\n{{ $json.body.managerNotes ? '<p><strong>Note from the studio:</strong> ' + $json.body.managerNotes + '</p>' : '' }}\n<p>Please visit our booking page to select a different time or teacher.</p>\n<p style=\"color:#6b7280; font-size:13px;\">Booking ID: {{ $json.body.bookingId }}</p>\n</body></html>"
+      },
+      "id": "email-student-rejected",
+      "name": "Email Student (Rejected)",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 2,
+      "position": [680, 580],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credential",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"ok\": true }"
+      },
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch on Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch on Action": {
+      "main": [
+        [
+          {
+            "node": "Email Manager",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Teacher (Approved)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Student (Approved)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Student (Rejected)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Manager": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Teacher (Approved)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Student (Approved)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Student (Rejected)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "jangaroo"
+  },
+  "id": "booking-approval-workflow",
+  "tags": []
+}
