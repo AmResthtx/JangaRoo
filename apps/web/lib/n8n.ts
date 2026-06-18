@@ -17,6 +17,7 @@ export async function triggerBookingWorkflow(
     managerNotes?: string
     approveUrl: string
     rejectUrl: string
+    paymentLink?: string | null
   }
 ): Promise<void> {
   const secret = process.env.N8N_WEBHOOK_SECRET

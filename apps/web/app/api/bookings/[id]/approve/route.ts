@@ -33,7 +33,7 @@ export async function PATCH(
 
   const { data: studio } = await supabase
     .from('studios')
-    .select('name, n8n_webhook_url')
+    .select('name, n8n_webhook_url, payment_link_url')
     .eq('id', booking.studio_id)
     .single()
 
@@ -60,6 +60,7 @@ export async function PATCH(
         lessonType: booking.lesson_type,
         approveUrl: `${baseUrl}/api/bookings/${id}/approve`,
         rejectUrl: `${baseUrl}/api/bookings/${id}/reject`,
+        paymentLink: studio.payment_link_url,
       })
     } catch (webhookError) {
       console.error('n8n webhook error (approve):', webhookError)

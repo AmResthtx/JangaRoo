@@ -2,8 +2,6 @@
 
 import { useState } from 'react'
 
-// Inline type for booking prop — avoids deep import path complexity
-// Shape mirrors the Supabase join: bookings row + teachers: { name, email } + rooms: { name }
 interface BookingProp {
   id: string
   student_name: string
@@ -15,6 +13,7 @@ interface BookingProp {
   end_time: string
   lesson_type: string
   status: 'pending' | 'approved' | 'rejected'
+  payment_status?: 'unpaid' | 'paid' | 'waived' | null
   manager_notes?: string | null
   created_at: string
   teachers?: { name: string; email: string } | null
@@ -27,17 +26,25 @@ interface Props {
 
 function StatusBadge({ status }: { status: BookingProp['status'] }) {
   const styles = {
-    pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    approved: 'bg-green-100 text-green-800 border-green-200',
-    rejected: 'bg-red-100 text-red-800 border-red-200',
+    pending:  'bg-yellow-100 text-yellow-800 border-yellow-200',
+    approved: 'bg-green-100  text-green-800  border-green-200',
+    rejected: 'bg-red-100    text-red-800    border-red-200',
   }
   return (
-    <span
-      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${styles[status]}`}
-    >
+    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${styles[status]}`}>
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   )
+}
+
+function PaymentBadge({ status }: { status: BookingProp['payment_status'] }) {
+  if (!status || status === 'unpaid') {
+    return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700">Unpaid</span>
+  }
+  if (status === 'paid') {
+    return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">Paid</span>
+  }
+  return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500">Waived</span>
 }
 
 function formatTime(time: string): string {
@@ -50,61 +57,61 @@ function formatTime(time: string): string {
 
 export default function BookingCard({ booking: initialBooking }: Props) {
   const [booking, setBooking] = useState<BookingProp>(initialBooking)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading]     = useState(false)
+  const [payLoading, setPayLoading] = useState(false)
+  const [error, setError]         = useState<string | null>(null)
   const [showRejectForm, setShowRejectForm] = useState(false)
-  const [rejectNotes, setRejectNotes] = useState('')
+  const [rejectNotes, setRejectNotes]       = useState('')
 
   async function handleApprove() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/bookings/${booking.id}/approve`, {
-        method: 'PATCH',
-      })
+      const res  = await fetch(`/api/bookings/${booking.id}/approve`, { method: 'PATCH' })
       const json = await res.json()
-      if (!res.ok) {
-        setError(json.error ?? 'Failed to approve booking')
-        return
-      }
-      setBooking((prev) => ({ ...prev, status: 'approved' }))
-    } catch {
-      setError('Network error. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+      if (!res.ok) { setError(json.error ?? 'Failed to approve booking'); return }
+      setBooking(prev => ({ ...prev, status: 'approved' }))
+    } catch { setError('Network error. Please try again.') }
+    finally   { setLoading(false) }
   }
 
   async function handleReject() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/bookings/${booking.id}/reject`, {
+      const res  = await fetch(`/api/bookings/${booking.id}/reject`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notes: rejectNotes }),
       })
       const json = await res.json()
-      if (!res.ok) {
-        setError(json.error ?? 'Failed to reject booking')
-        return
-      }
-      setBooking((prev) => ({
-        ...prev,
-        status: 'rejected',
-        manager_notes: rejectNotes || null,
-      }))
+      if (!res.ok) { setError(json.error ?? 'Failed to reject booking'); return }
+      setBooking(prev => ({ ...prev, status: 'rejected', manager_notes: rejectNotes || null }))
       setShowRejectForm(false)
-    } catch {
-      setError('Network error. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    } catch { setError('Network error. Please try again.') }
+    finally   { setLoading(false) }
+  }
+
+  async function handlePaymentStatus(newStatus: 'paid' | 'waived') {
+    setPayLoading(true)
+    try {
+      const res  = await fetch(`/api/bookings/${booking.id}/payment`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payment_status: newStatus }),
+      })
+      const json = await res.json()
+      if (!res.ok) { setError(json.error ?? 'Failed to update payment'); return }
+      setBooking(prev => ({ ...prev, payment_status: newStatus }))
+    } catch { setError('Network error. Please try again.') }
+    finally   { setPayLoading(false) }
   }
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
       <div className="p-6">
+
+        {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">{booking.student_name}</h3>
@@ -112,15 +119,19 @@ export default function BookingCard({ booking: initialBooking }: Props) {
               <span>{booking.student_email}</span>
               {booking.student_phone && <span>{booking.student_phone}</span>}
               {booking.notify_via && booking.notify_via.length > 0 && (
-                <span className="text-gray-400">
-                  Notify: {booking.notify_via.join(', ')}
-                </span>
+                <span className="text-gray-400">Notify: {booking.notify_via.join(', ')}</span>
               )}
             </div>
           </div>
-          <StatusBadge status={booking.status} />
+          <div className="flex flex-col items-end gap-1.5 shrink-0">
+            <StatusBadge status={booking.status} />
+            {booking.status === 'approved' && (
+              <PaymentBadge status={booking.payment_status} />
+            )}
+          </div>
         </div>
 
+        {/* Details grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-gray-50 rounded-xl px-4 py-3 text-sm">
           <div>
             <div className="text-gray-400 text-xs font-medium uppercase tracking-wide mb-0.5">Teacher</div>
@@ -162,23 +173,17 @@ export default function BookingCard({ booking: initialBooking }: Props) {
           </div>
         )}
 
-        {/* Approve / Reject actions — only shown for pending bookings */}
+        {/* Approve / Reject — pending only */}
         {booking.status === 'pending' && (
           <div className="mt-5">
             {!showRejectForm ? (
               <div className="flex gap-3">
-                <button
-                  onClick={handleApprove}
-                  disabled={loading}
-                  className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-2.5 rounded-lg transition-colors"
-                >
+                <button onClick={handleApprove} disabled={loading}
+                  className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-2.5 rounded-lg transition-colors">
                   {loading ? 'Processing...' : 'Approve'}
                 </button>
-                <button
-                  onClick={() => setShowRejectForm(true)}
-                  disabled={loading}
-                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold py-2.5 rounded-lg transition-colors"
-                >
+                <button onClick={() => setShowRejectForm(true)} disabled={loading}
+                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold py-2.5 rounded-lg transition-colors">
                   Reject
                 </button>
               </div>
@@ -187,29 +192,18 @@ export default function BookingCard({ booking: initialBooking }: Props) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Rejection note (optional)
                 </label>
-                <textarea
-                  value={rejectNotes}
-                  onChange={(e) => setRejectNotes(e.target.value)}
+                <textarea value={rejectNotes} onChange={e => setRejectNotes(e.target.value)}
                   placeholder="Add a note to send to the student..."
                   rows={3}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent resize-none mb-3"
                 />
                 <div className="flex gap-3">
-                  <button
-                    onClick={handleReject}
-                    disabled={loading}
-                    className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold py-2.5 rounded-lg transition-colors"
-                  >
+                  <button onClick={handleReject} disabled={loading}
+                    className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold py-2.5 rounded-lg transition-colors">
                     {loading ? 'Rejecting...' : 'Confirm Reject'}
                   </button>
-                  <button
-                    onClick={() => {
-                      setShowRejectForm(false)
-                      setRejectNotes('')
-                    }}
-                    disabled={loading}
-                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-lg transition-colors"
-                  >
+                  <button onClick={() => { setShowRejectForm(false); setRejectNotes('') }} disabled={loading}
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-lg transition-colors">
                     Cancel
                   </button>
                 </div>
@@ -217,6 +211,21 @@ export default function BookingCard({ booking: initialBooking }: Props) {
             )}
           </div>
         )}
+
+        {/* Payment tracking — approved + unpaid only */}
+        {booking.status === 'approved' && (!booking.payment_status || booking.payment_status === 'unpaid') && (
+          <div className="mt-4 flex gap-3">
+            <button onClick={() => handlePaymentStatus('paid')} disabled={payLoading}
+              className="flex-1 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white text-sm font-semibold py-2 rounded-lg transition-colors">
+              {payLoading ? 'Saving...' : 'Mark as Paid'}
+            </button>
+            <button onClick={() => handlePaymentStatus('waived')} disabled={payLoading}
+              className="flex-1 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 text-sm font-semibold py-2 rounded-lg transition-colors">
+              Waive Payment
+            </button>
+          </div>
+        )}
+
       </div>
     </div>
   )

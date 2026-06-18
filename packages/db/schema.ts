@@ -9,6 +9,7 @@ export interface Studio {
   contact_email: string;
   manager_email: string;
   n8n_webhook_url: string | null;
+  payment_link_url: string | null;
   twilio_enabled: boolean;
   created_at: string;
 }
@@ -59,6 +60,7 @@ export interface Booking {
   lesson_type: LessonType;
   status: BookingStatus;
   manager_notes: string | null;
+  payment_status: 'unpaid' | 'paid' | 'waived';
   n8n_run_id: string | null;
   created_at: string;
   updated_at: string;
