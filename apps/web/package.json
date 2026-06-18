@@ -18,7 +18,8 @@
     "@fullcalendar/daygrid": "^6.1.11",
     "@fullcalendar/timegrid": "^6.1.11",
     "@fullcalendar/interaction": "^6.1.11",
-    "@fullcalendar/core": "^6.1.11"
+    "@fullcalendar/core": "^6.1.11",
+    "@anthropic-ai/sdk": "^0.32.0"
   },
   "devDependencies": {
     "typescript": "^5",

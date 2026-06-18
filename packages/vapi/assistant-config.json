@@ -1,0 +1,45 @@
+{
+  "name": "JangaRoo Dance Studio Assistant",
+  "voice": {
+    "provider": "11labs",
+    "voiceId": "rachel"
+  },
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-haiku-4-5-20251001",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a friendly phone assistant for {{studioName}}, a dance studio. Your job is to answer questions and help callers book lessons.\n\nStudio hours: Monday–Friday, 10 AM to 9 PM.\nBooking website: {{bookingUrl}}\nContact email: {{contactEmail}}\n\nGuidelines:\n- Keep responses short and natural — this is a phone call\n- Speak in a warm, upbeat tone\n- If someone wants to book, tell them you'll send a booking link to their phone after the call\n- You cannot book on their behalf — the website handles that\n- Do not discuss specific pricing — direct them to the studio\n- End the call politely if the caller seems finished"
+      }
+    ],
+    "maxTokens": 256,
+    "temperature": 0.7
+  },
+  "firstMessage": "Hi, thanks for calling {{studioName}}! I'm your AI assistant. How can I help you today?",
+  "serverUrl": "{{appUrl}}/api/vapi",
+  "serverUrlSecret": "{{vapiWebhookSecret}}",
+  "endCallFunctionEnabled": true,
+  "endCallMessage": "Thanks for calling {{studioName}}! If you'd like to book, check your phone for a text with the booking link. Have a great day!",
+  "transcriber": {
+    "provider": "deepgram",
+    "model": "nova-2",
+    "language": "en-US"
+  },
+  "hipaaEnabled": false,
+  "silenceTimeoutSeconds": 30,
+  "maxDurationSeconds": 600,
+  "backgroundSound": "off",
+  "backchannelingEnabled": true,
+  "analysisPlan": {
+    "summaryPrompt": "Summarize this call in one sentence. Note if the caller wanted to book a lesson.",
+    "structuredDataPrompt": "Extract: did_want_booking (boolean), caller_name (string or null)",
+    "structuredDataSchema": {
+      "type": "object",
+      "properties": {
+        "did_want_booking": { "type": "boolean" },
+        "caller_name": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

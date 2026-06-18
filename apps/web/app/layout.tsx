@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
+import ChatWidget from '@/components/ChatWidget'
 
 export const metadata: Metadata = {
   title: 'JangaRoo - Dance Studio Booking',
@@ -17,6 +18,7 @@ export default function RootLayout({
       <body>
         <Navbar />
         <main>{children}</main>
+        <ChatWidget studioSlug={process.env.NEXT_PUBLIC_DEFAULT_STUDIO_SLUG ?? 'rhythm'} />
       </body>
     </html>
   )
