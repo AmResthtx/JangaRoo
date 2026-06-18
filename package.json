@@ -1,0 +1,10 @@
+{
+  "name": "jangaroo",
+  "private": true,
+  "workspaces": ["apps/web", "packages/*"],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=apps/web",
+    "db:migrate": "echo 'Run migrations in Supabase SQL editor'"
+  }
+}
